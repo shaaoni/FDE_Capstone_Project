@@ -1,0 +1,56 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest tests/
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compile Python sources
+        run: |
+          python -m py_compile \
+            src/api.py \
+            src/classify.py \
+            src/config.py \
+            src/generate.py \
+            src/guardrails.py \
+            src/ingest.py \
+            src/logging_store.py \
+            src/retrieve.py \
+            src/route.py
+
+      - name: Validate evaluation scripts
+        run: |
+          python -m py_compile \
+            evaluation/harness.py \
+            evaluation/verify_logging.py
